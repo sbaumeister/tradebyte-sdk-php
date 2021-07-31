@@ -35,5 +35,5 @@ $catalog->close();
  * update stock
  */
 $stockHandler->updateStock([
-    (new Tradebyte\Stock\Model\Stock())->setArticleNumber('12345')->setStock(6)
+    (new Tradebyte\Stock\Model\Article())->setArticleNumber('12345')->setStock(6)
 ]);

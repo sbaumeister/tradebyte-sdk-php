@@ -4,7 +4,7 @@ namespace Tradebyte\Stock;
 
 use Tradebyte\Base;
 use Tradebyte\Client;
-use Tradebyte\Stock\Model\Stock;
+use Tradebyte\Stock\Model\Article;
 
 /**
  * @package Tradebyte
@@ -25,6 +25,7 @@ class StockTest extends Base
         $this->assertSame([
             'article_number' => 'a_nr_test',
             'stock' => 2,
+            'warehouse_key' => null,
         ], $stockModel->getRawData());
 
         $this->assertEquals('1602870040', $catalog->getChangeDate());
@@ -35,12 +36,25 @@ class StockTest extends Base
      */
     public function testStockObjectGetRawData(): void
     {
-        $stock = new Stock();
-        $stock->setStock(20);
-        $stock->setArticleNumber('123456');
+        $article = new Article();
+        $article->setStock(20);
+        $article->setArticleNumber('123456');
         $this->assertSame([
             'article_number' => '123456',
             'stock' => 20,
-        ], $stock->getRawData());
+            'warehouse_key' => null,
+        ], $article->getRawData());
+    }
+
+    public function testXml(): void
+    {
+        $article = new Article();
+        $article->setStock(20);
+        $article->setArticleNumber('123456');
+        $article->setWarehouseKey('warehouse-1');
+        $stockHandler = (new Client())->getStockHandler();
+        $expectedXml = ltrim('
+<TBSTOCK><ARTICLE><A_NR>123456</A_NR><A_STOCK identifier="name" key="warehouse-1">20</A_STOCK></ARTICLE></TBSTOCK>');
+        $this->assertEquals($expectedXml, $stockHandler->toXml([$article]));
     }
 }

@@ -3,6 +3,7 @@
 namespace Tradebyte\Stock;
 
 use Tradebyte\Client;
+use Tradebyte\Stock\Model\Article;
 use XMLWriter;
 
 /**
@@ -43,7 +44,7 @@ class Handler
 
     /**
      * @param string $filePath
-     * @param array  $filter
+     * @param array $filter
      * @return boolean
      */
     public function downloadStockList(string $filePath, array $filter = []): bool
@@ -61,26 +62,40 @@ class Handler
     }
 
     /**
-     * @param Stock[] $stockArray
+     * @param Article[] $stockArray
      * @return string
      */
-    public function updateStock(array $stockArray)
+    public function updateStock(array $stockArray): string
+    {
+        $xml = $this->toXml($stockArray);
+        return $this->client->getRestClient()->postXML('articles/stock', $xml);
+    }
+
+    /**
+     * @param array $stockArray
+     * @return string
+     */
+    public function toXml(array $stockArray): string
     {
         $writer = new XMLWriter();
         $writer->openMemory();
-        $writer->startElement('TBCATALOG');
-        $writer->startElement('ARTICLEDATA');
+        $writer->startElement('TBSTOCK');
 
         foreach ($stockArray as $stock) {
             $writer->startElement('ARTICLE');
             $writer->writeElement('A_NR', $stock->getArticleNumber());
-            $writer->writeElement('A_STOCK', $stock->getStock());
+            $writer->startElement('A_STOCK');
+            if (!is_null($stock->getWarehouseKey())) {
+                $writer->writeAttribute('identifier', 'name');
+                $writer->writeAttribute('key', $stock->getWarehouseKey());
+            }
+            $writer->writeRaw($stock->getStock());
+            $writer->endElement();
             $writer->endElement();
         }
 
         $writer->endElement();
-        $writer->endElement();
 
-        return $this->client->getRestClient()->postXML('articles/stock', $writer->outputMemory());
+        return $writer->outputMemory();
     }
 }

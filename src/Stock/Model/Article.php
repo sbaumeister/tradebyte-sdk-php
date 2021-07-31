@@ -7,7 +7,7 @@ use SimpleXMLElement;
 /**
  * @package Tradebyte
  */
-class Stock
+class Article
 {
     /**
      * @var string
@@ -20,6 +20,11 @@ class Stock
     protected $stock;
 
     /**
+     * @var string
+     */
+    protected $warehouseKey;
+
+    /**
      * @return string|null
      */
     public function getArticleNumber(): ?string
@@ -29,9 +34,9 @@ class Stock
 
     /**
      * @param string $articleNumber
-     * @return Stock
+     * @return Article
      */
-    public function setArticleNumber(string $articleNumber): Stock
+    public function setArticleNumber(string $articleNumber): Article
     {
         $this->articleNumber = $articleNumber;
         return $this;
@@ -47,11 +52,29 @@ class Stock
 
     /**
      * @param integer $stock
-     * @return Stock
+     * @return Article
      */
-    public function setStock(int $stock): Stock
+    public function setStock(int $stock): Article
     {
         $this->stock = $stock;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWarehouseKey(): ?string
+    {
+        return $this->warehouseKey;
+    }
+
+    /**
+     * @param string $warehouseKey
+     * @return Article
+     */
+    public function setWarehouseKey(string $warehouseKey): Article
+    {
+        $this->warehouseKey = $warehouseKey;
         return $this;
     }
 
@@ -62,6 +85,9 @@ class Stock
     {
         $this->setArticleNumber((string)$xmlElement->A_NR);
         $this->setStock((int)$xmlElement->A_STOCK);
+        if (isset($xmlElement->A_STOCK['key'])) {
+            $this->setWarehouseKey((string)$xmlElement->A_STOCK['key']);
+        }
     }
 
     /**
@@ -72,6 +98,7 @@ class Stock
         return [
             'article_number' => $this->getArticleNumber(),
             'stock' => $this->getStock(),
+            'warehouse_key' => $this->getWarehouseKey(),
         ];
     }
 }

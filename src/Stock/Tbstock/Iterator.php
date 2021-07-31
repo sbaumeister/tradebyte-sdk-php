@@ -3,7 +3,7 @@
 namespace Tradebyte\Stock\Tbstock;
 
 use InvalidArgumentException;
-use Tradebyte\Stock\Model\Stock;
+use Tradebyte\Stock\Model\Article;
 use XMLReader;
 use Tradebyte\Base;
 
@@ -30,9 +30,9 @@ class Iterator extends Base\Iterator implements \Iterator
     }
 
     /**
-     * @return Stock
+     * @return Article
      */
-    public function current(): Stock
+    public function current(): Article
     {
         return $this->current;
     }
@@ -49,7 +49,7 @@ class Iterator extends Base\Iterator implements \Iterator
                 && $this->xmlReader->name == 'ARTICLE'
             ) {
                 $xmlElement = new \SimpleXMLElement($this->xmlReader->readOuterXML());
-                $model = new Stock();
+                $model = new Article();
                 $model->fillFromSimpleXMLElement($xmlElement);
                 $this->current = $model;
                 return;
